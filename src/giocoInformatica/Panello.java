@@ -6,7 +6,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
-public class Panello extends Main {
+public class Panello extends Finestra {
 
 	//screen setting
 	
