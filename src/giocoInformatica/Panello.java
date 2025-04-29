@@ -6,7 +6,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
-public class Panello extends Main {
+public class Panello extends StackPane {
 
 	//screen setting
 	
@@ -23,6 +23,16 @@ public class Panello extends Main {
 	
 	public Panello() {
 	
+		// Caricare l'immagine
+		Image ImmagineSfondo = new Image("file:percorso/dell/immagine.png"); 
+		ImageView immagine = new ImageView(ImmagineSfondo);
+
+		// Imposta dimensioni dell'immagine
+		immagine.setFitWidth(100);  // Imposta la larghezza dell'immagine
+		immagine.setFitHeight(100); // Imposta l'altezza dell'immagine
+
+		// Aggiungi l'immagine al pannello
+		this.getChildren().add(immagine);
 
 	}
 }
