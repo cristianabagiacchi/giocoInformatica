@@ -22,23 +22,7 @@ public class Panello extends Main {
 	int altezzaSchermo=tileSize*righe; //576 pixels
 	
 	public Panello() {
-		
-		// Crea un StackPane per aggiungere l'immagine di sfondo
-        StackPane g = new StackPane();
-
-        // Carica l'immagine di sfondo
-        Image imagineSfondo = new Image("sfondo1.jpg"); 
-        ImageView sfondo = new ImageView(imagineSfondo);
-
-        // Imposta la dimensione dell'immagine di sfondo per adattarsi alla finestra
-        sfondo.setFitWidth(larghezzaSchermo);
-        sfondo.setFitHeight(altezzaSchermo);
-
-        // Aggiungi l'immagine come sfondo
-        g.getChildren().add(sfondo);
-
-        // Crea la scena con la larghezza e l'altezza specificata
-        Scene scene = new Scene(g, larghezzaSchermo, altezzaSchermo);
+	
 
 	}
 }

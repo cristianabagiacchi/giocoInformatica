@@ -1,10 +1,11 @@
 package giocoInformatica;
 
+import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class Main {
+public class Main extends Application{
 
 	  public void start(Stage primaryStage) {
 		  Group g = new Group();
@@ -15,8 +16,10 @@ public class Main {
 		  primaryStage.show();
 
 		  Panello a = new Panello();
-		  System.out.println(a);
-		
+		  System.out.println(a);	
 	
-	  }
+	  }  
+	  public static void main(String[] args) {
+			launch(args);
+		}
 }
