@@ -43,12 +43,12 @@ public class Player {
             for (int i = 0; i < 4; i++) {
                 idleFrames[dir][i] = new Image("idle_" + dir + "_" + i + ".png");
             }
-           /* for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < 8; i++) {
                 corsaFrames[dir][i] = new Image("corsa_" + dir + "_" + i + ".png");
-            }*/
-            /*for (int i = 0; i < 12; i++) {
+            }
+            for (int i = 0; i < 12; i++) {
                 attaccoFrames[dir][i] = new Image("attacco_" + dir + "_" + i + ".png");
-            }*/
+            }
         }
     }
 
