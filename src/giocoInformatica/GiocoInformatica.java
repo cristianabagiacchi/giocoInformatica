@@ -1,10 +1,13 @@
 package giocoInformatica;
 
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 
-public class GiocoInformatica {
+public class GiocoInformatica extends StackPane {
 
-	public static void main(String[] args) {
-		
-	}
-
+    public GiocoInformatica() {
+        // Esempio semplice di gioco
+        Text giocoText = new Text("Benvenuto nel Gioco!");
+        this.getChildren().add(giocoText);
+    }
 }

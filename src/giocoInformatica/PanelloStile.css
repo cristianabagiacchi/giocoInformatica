@@ -1,0 +1,52 @@
+/* Titolo del gioco con font più grande, senza rotazione */
+.label {
+    -fx-font-family: "Times New Roman", serif; /* Font gotico serif */
+    -fx-font-size: 150px; /* Dimensione del font molto più grande */
+    -fx-text-fill: #B22222; /* Colore rosso scuro */
+    -fx-font-weight: bold; /* Grassetto per forza visiva */
+    -fx-font-style: italic; /* Stile corsivo per un tocco gotico */
+    -fx-effect: dropshadow(gaussian, black, 12, 0.8, 0, 8); /* Ombra nera per un contrasto intenso */
+
+    
+    /* Rimuoviamo la rotazione e l'effetto di curvatura */
+    -fx-translate-y: 0px; /* Rimuoviamo la traslazione verticale */
+    -fx-rotate: 0; /* Rimuoviamo la rotazione */
+    
+    /* Posizionamento e centratura */
+    -fx-padding: 20px;
+}
+
+/* Pulsante con sfondo trasparente, bordo bianco e arrotondato */
+.button {
+    -fx-background-color: transparent; /* Sfondo trasparente */
+    -fx-text-fill: white; /* Testo bianco */
+    -fx-font-size: 22px; /* Font dei pulsanti */
+    -fx-padding: 12px 25px; /* Spaziatura intorno al testo del pulsante */
+    -fx-border-radius: 15; /* Angoli arrotondati */
+    -fx-border-color: white; /* Bordo bianco */
+    -fx-border-width: 2; /* Bordo sottile bianco */
+    -fx-cursor: hand; /* Cursore a mano per effetto interattivo */
+    -fx-background-radius: 15; /* Bordo del bottone arrotondato */
+}
+
+/* Effetto hover del pulsante (quando il cursore è sopra il pulsante) */
+.button:hover {
+    -fx-background-color: #8B0000; /* Colore rosso scuro quando il cursore passa sopra */
+    -fx-text-fill: white; /* Mantieni il testo bianco */
+}
+
+/* Effetto quando il pulsante è premuto */
+.button:pressed {
+    -fx-background-color: #2a2a2a; /* Colore scuro quando il bottone è premuto */
+    -fx-text-fill: white; /* Testo bianco anche se premuto */
+}
+
+/* Pulsante "Inizia Gioco" con un effetto personalizzato */
+.button-start {
+    -fx-font-size: 24px;
+}
+
+/* Pulsante "Esci" con un effetto personalizzato */
+.button-exit {
+    -fx-font-size: 24px;
+}
