@@ -1,15 +1,8 @@
 package giocoInformatica;
 
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
+import javafx.scene.shape.Rectangle;
 
 public class Player {
 
@@ -29,7 +22,7 @@ public class Player {
     private Image[][] attaccoFrames = new Image[4][12]; // 4 direzioni, 12 frame per direzione
 
     private double x, y; // Posizione
-    private double velocita = 4.0; // Velocità di movimento
+    public double velocita = 4.0; // Velocità di movimento
 
     public Player(double x, double y) {
         this.x = x;
@@ -41,7 +34,9 @@ public class Player {
         // Carica le immagini da risorse per ogni direzione e tipo di animazione
         for (int dir = 0; dir < 4; dir++) {
             for (int i = 0; i < 4; i++) {
-                idleFrames[dir][i] = new Image("idle_" + dir + "_" + i + ".png");
+            	String nome ="personaggio/idle/idle_" + dir + "_" + i + ".png";
+            	System.out.println(nome);
+                idleFrames[dir][i] = new Image( this.getClass().getResourceAsStream(nome));
             }
             for (int i = 0; i < 8; i++) {
                 corsaFrames[dir][i] = new Image("corsa_" + dir + "_" + i + ".png");
@@ -65,6 +60,10 @@ public class Player {
                 }
             }
         }
+    }
+    public Rectangle getNode() {
+        Rectangle sprite = null;
+		return sprite;
     }
 
     public void disegna(GraphicsContext gc) {

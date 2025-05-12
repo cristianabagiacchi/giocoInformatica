@@ -1,5 +1,6 @@
 package giocoInformatica;
 
+import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -9,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -25,11 +27,35 @@ public class PrimoLivello extends StackPane {
     int altezzaSchermo = tileSize * righe;
     private Label storyLabel;
     private boolean spazioPremuto = false;
+    private Player player;
 
     // Costruttore che accetta Stage come parametro
     public PrimoLivello(Stage primaryStage) {
         // Crea un'immagine di sfondo
+    	Pane root = new Pane();
+        Scene scene = new Scene(root, 800, 600);
         Image image = new Image(getClass().getResourceAsStream("castle.png"));
+        player = new Player(100, 100);
+        root.getChildren().add(player.getNode());
+        //scene.setOnKeyPressed(e -> pressedKeys.add(e.getCode()));
+        //scene.setOnKeyReleased(e -> pressedKeys.remove(e.getCode()));
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                double dx = 0, dy = 0;
+                double speed = player.velocita;
+
+                // Movimento del giocatore (WASD)
+               /* if (pressedKeys.contains(KeyCode.W)) dy -= speed;
+                if (pressedKeys.contains(KeyCode.S)) dy += speed;
+                if (pressedKeys.contains(KeyCode.A)) dx -= speed;
+                if (pressedKeys.contains(KeyCode.D)) dx += speed;*/
+
+                // Muovi il giocatore
+                player.muovi(dx, dy);
+            }
+        };
+        timer.start();
         if (image.isError()) {
             System.out.println("Errore nel caricamento dell'immagine!");  // Aggiungi questa riga per il controllo dell'immagine
         } else {
@@ -38,7 +64,7 @@ public class PrimoLivello extends StackPane {
             imageView.setFitHeight(altezzaSchermo);  // Adatta l'immagine all'altezza dello schermo
            // imageView.setPreserveRatio(true);  // Mantiene le proporzioni dell'immagine
             // Aggiungi l'immagine come sfondo (è già la base dello StackPane)
-            this.getChildren().add(imageView);
+            root.getChildren().add(imageView);
         }
 
         // Aggiungi il pulsante "Esci" in alto a sinistra

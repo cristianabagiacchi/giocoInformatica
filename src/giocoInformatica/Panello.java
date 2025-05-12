@@ -16,6 +16,7 @@ public class Panello extends StackPane {
 
     public Panello(Stage primaryStage) {
         this.primaryStage = primaryStage;
+        
 
         int tileOriginale = 16;
         int scala = 3;
