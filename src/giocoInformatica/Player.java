@@ -39,10 +39,14 @@ public class Player {
                 idleFrames[dir][i] = new Image( this.getClass().getResourceAsStream(nome));
             }
             for (int i = 0; i < 8; i++) {
-                corsaFrames[dir][i] = new Image("corsa_" + dir + "_" + i + ".png");
+            	String nome ="personaggio/corsa/corsa_" + dir + "_" + i + ".png";
+            	System.out.println(nome);
+                corsaFrames[dir][i] = new Image(this.getClass().getResourceAsStream(nome));
             }
             for (int i = 0; i < 12; i++) {
-                attaccoFrames[dir][i] = new Image("attacco_" + dir + "_" + i + ".png");
+            	String nome ="personaggio/attacco/attacco_" + dir + "_" + i + ".png";
+            	System.out.println(nome);
+                attaccoFrames[dir][i] = new Image(this.getClass().getResourceAsStream(nome));
             }
         }
     }
