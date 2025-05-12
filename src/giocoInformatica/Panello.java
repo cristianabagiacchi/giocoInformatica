@@ -16,7 +16,6 @@ public class Panello extends StackPane {
 
     public Panello(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        
 
         int tileOriginale = 16;
         int scala = 3;
@@ -48,7 +47,7 @@ public class Panello extends StackPane {
         startButton.setStyle("-fx-font-size: 20px; -fx-padding: 10px;");
         startButton.setOnAction(e -> {
             System.out.println("Pulsante 'Inizia Gioco' cliccato");  // Verifica che il pulsante sia cliccato
-            showPrimoLivello();
+            showPrimoLivello();  // Cambia scena al primo livello
         });
 
         // Pulsante "Esci"
@@ -64,10 +63,18 @@ public class Panello extends StackPane {
 
     // Metodo per passare al primo livello
     public void showPrimoLivello() {
-        System.out.println("Cambio scena al primo livello");  // Verifica che questo metodo venga invocato
+        System.out.println("Cambio scena al primo livello");  // Debug per vedere se questo metodo viene invocato
+
+        // Crea il primo livello
         PrimoLivello primoLivello = new PrimoLivello(primaryStage);
+        
+        // Crea una nuova scena per il primo livello
         Scene primoLivelloScene = new Scene(primoLivello, primoLivello.larghezzaSchermo, primoLivello.altezzaSchermo);
+        
+        // Imposta la scena sul primaryStage
         primaryStage.setScene(primoLivelloScene);
+        
+        // Mostra la nuova scena
         primaryStage.show();
     }
 }
