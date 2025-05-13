@@ -1,9 +1,7 @@
-package giocoInformatica;
+/*package giocoInformatica;
 
-import javafx.animation.AnimationTimer;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.image.ImageView;
 
 public class Player {
 
@@ -25,14 +23,16 @@ public class Player {
     private double x, y; // Posizione
     public double velocita = 4.0; // Velocità di movimento
 
-    private Rectangle hitbox;
-    private final double width = 64, height = 64; // dimensioni sprite
+    private ImageView imageView;
 
     public Player(double x, double y) {
         this.x = x;
         this.y = y;
+        imageView = new ImageView(); // Crea un ImageView per il giocatore
         caricaAnimazioni(); // Carica le immagini
-        hitbox = new Rectangle(x, y, width, height); // Inizializza la hitbox
+        imageView.setX(x);  // Imposta la posizione iniziale
+        imageView.setY(y);
+        imageView.setImage(getImmagineAttuale()); // Imposta l'immagine iniziale
     }
 
     private void caricaAnimazioni() {
@@ -40,29 +40,26 @@ public class Player {
         for (int dir = 0; dir < 4; dir++) {
             for (int i = 0; i < 4; i++) {
                 String nome = "personaggio/idle/idle_" + dir + "_" + i + ".png";
-                System.out.println(nome);
                 idleFrames[dir][i] = new Image(this.getClass().getResourceAsStream(nome));
             }
             for (int i = 0; i < 8; i++) {
                 String nome = "personaggio/corsa/corsa_" + dir + "_" + i + ".png";
-                System.out.println(nome);
                 corsaFrames[dir][i] = new Image(this.getClass().getResourceAsStream(nome));
             }
             for (int i = 0; i < 12; i++) {
                 String nome = "personaggio/attacco/attacco_" + dir + "_" + i + ".png";
-                System.out.println(nome);
                 attaccoFrames[dir][i] = new Image(this.getClass().getResourceAsStream(nome));
             }
         }
     }
 
-    private void aggiornaHitbox() {
-        hitbox.setX(x);
-        hitbox.setY(y);
+    public ImageView getNode() {
+        // Restituisci il nodo ImageView del giocatore
+        return imageView;
     }
 
-    // Metodo per aggiornare lo stato del personaggio (animazioni, etc.)
-    public void update(double deltaTime) {
+    public void update() {
+        // Aggiorna il frame corrente
         frameCounter++;
         if (frameCounter >= frameDelay) {
             frameCounter = 0;
@@ -75,52 +72,43 @@ public class Player {
                 }
             }
         }
-
-        aggiornaHitbox(); // Sempre aggiorna la hitbox
+        imageView.setImage(getImmagineAttuale()); // Aggiorna l'immagine del giocatore
     }
 
-    // Controllo collisione con un ostacolo
-    public boolean controllaCollisione(Rectangle ostacolo) {
-        return hitbox.getBoundsInParent().intersects(ostacolo.getBoundsInParent());
+    public void muovi(double dx, double dy) {
+        // Movimento del giocatore e gestione direzione
+        if (dx > 0) {
+            direzioneCorrente = Direzione.DESTRA;
+        } else if (dx < 0) {
+            direzioneCorrente = Direzione.SINISTRA;
+        } else if (dy > 0) {
+            direzioneCorrente = Direzione.GIU;
+        } else if (dy < 0) {
+            direzioneCorrente = Direzione.SU;
+        }
+
+        x += dx * velocita;
+        y += dy * velocita;
+        imageView.setX(x);  // Aggiorna la posizione dell'immagine
+        imageView.setY(y);  // Aggiorna la posizione dell'immagine
     }
 
-    // Funzione per il movimento (con controllo collisioni)
-    public void muovi(double dx, double dy, Rectangle[] ostacoli) {
-        double nuovoX = x + dx * velocita;
-        double nuovoY = y + dy * velocita;
-
-        Rectangle nextHitbox = new Rectangle(nuovoX, nuovoY, width, height);
-
-        boolean collisione = false;
-        for (Rectangle o : ostacoli) {
-            if (nextHitbox.getBoundsInParent().intersects(o.getBoundsInParent())) {
-                collisione = true;
-                break;
-            }
-        }
-
-        if (!collisione) {
-            x = nuovoX;
-            y = nuovoY;
-            aggiornaHitbox();
-        }
-
-        setAzione(Azione.CORSA);
-
-        if (Math.abs(dx) > Math.abs(dy)) {
-            setDirezione(dx > 0 ? Direzione.DESTRA : Direzione.SINISTRA);
-        } else if (dy != 0) {
-            setDirezione(dy > 0 ? Direzione.GIU : Direzione.SU);
+    private int getNumeroFrameAttuale() {
+        switch (azioneCorrente) {
+            case CORSA: return 8;
+            case ATTACCO: return 12;
+            case IDLE:
+            default: return 4;
         }
     }
 
-    // Metodo per disegnare il personaggio sul canvas
-    public void disegna(GraphicsContext gc) {
-        Image img = getImmagineAttuale();
-        gc.drawImage(img, x, y);
+    public void setAzione(Azione azione) {
+        azioneCorrente = azione;
+        frame = 0;  // Reset dei frame quando cambia l'azione
     }
 
     private Image getImmagineAttuale() {
+        // Restituisce l'immagine corrente in base all'azione e alla direzione
         int dir = direzioneCorrente.ordinal();
         switch (azioneCorrente) {
             case CORSA:
@@ -132,56 +120,4 @@ public class Player {
                 return idleFrames[dir][frame];
         }
     }
-
-    private int getNumeroFrameAttuale() {
-        switch (azioneCorrente) {
-            case CORSA:
-                return 8;
-            case ATTACCO:
-                return 12;
-            case IDLE:
-            default:
-                return 4;
-        }
-    }
-
-    // Imposta l'azione del personaggio
-    public void setAzione(Azione azione) {
-        if (azioneCorrente != azione) {
-            azioneCorrente = azione;
-            frame = 0;
-        }
-    }
-
-    // Imposta la direzione del personaggio
-    public void setDirezione(Direzione direzione) {
-        if (direzioneCorrente != direzione) {
-            direzioneCorrente = direzione;
-            frame = 0;
-        }
-    }
-
-    // Funzione per far partire l'attacco
-    public void attacca() {
-        setAzione(Azione.ATTACCO);
-    }
-
-    // Ferma il personaggio (ritorna in stato IDLE)
-    public void ferma() {
-        setAzione(Azione.IDLE);
-    }
-
-    // Getter per la posizione del personaggio
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    // Getter per la hitbox
-    public Rectangle getHitbox() {
-        return hitbox;
-    }
-}
+}*/

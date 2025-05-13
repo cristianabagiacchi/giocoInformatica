@@ -1,7 +1,7 @@
+
 package giocoInformatica;
 
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,42 +16,46 @@ public class PrimoLivello extends StackPane {
     int tileSize = tileOriginale * scala;
     int colonne = 48;
     int righe = 48;
-    int larghezzaSchermo = tileSize * colonne;
-    int altezzaSchermo = tileSize * righe;
+    public int larghezzaSchermo = tileSize * colonne; // Modificato per renderlo pubblico
+    public int altezzaSchermo = tileSize * righe;     // Modificato per renderlo pubblico
 
-    private Player player;
+    private ImageView imageView;
+    private String[] immaginiSfondo = {"castle.png", "forest.png", "desert.png"}; // Aggiungi qui i nomi delle immagini che vuoi cambiare
+    private int currentImageIndex = 0; // Indice per l'immagine corrente
 
-    // Costruttore che accetta Stage come parametro
     public PrimoLivello(Stage primaryStage) {
         Pane root = new Pane();
         Scene scene = new Scene(root, larghezzaSchermo, altezzaSchermo);
 
-        // Carica l'immagine di sfondo
-        Image image = new Image(getClass().getResourceAsStream("castle.png"));
-        if (image.isError()) {
-            System.out.println("Errore nel caricamento dell'immagine!");
-        } else {
-            ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(larghezzaSchermo);  // Adatta l'immagine alla larghezza dello schermo
-            imageView.setFitHeight(altezzaSchermo);  // Adatta l'immagine all'altezza dello schermo
-            root.getChildren().add(imageView);
-        }
+        // Crea un ImageView per l'immagine di sfondo
+        imageView = new ImageView();
+        imageView.setFitWidth(larghezzaSchermo);
+        imageView.setFitHeight(altezzaSchermo);
+        root.getChildren().add(imageView);
 
-        // Crea il giocatore e lo aggiungi alla scena
-        player = new Player(100, 100);  // Posiziona il player a (100, 100)
-        root.getChildren().add(player.getNode());  // Aggiungi il nodo del giocatore (l'immagine) al root
-
+        // Avvia il timer per cambiare immagine
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                // Movimento del giocatore (puoi implementare il movimento qui)
-                player.muovi(0, 0);  // Muovi il giocatore (gestibile con i tasti)
+                aggiornaImmagine();  // Cambia l'immagine ogni tick del timer
             }
         };
-        timer.start();
+        timer.start(); // Inizia il timer
 
-        // Aggiungi la scena al primaryStage
+        // Imposta la scena
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void aggiornaImmagine() {
+        // Carica l'immagine successiva
+        if (currentImageIndex >= immaginiSfondo.length) {
+            currentImageIndex = 0; // Torna alla prima immagine quando arriva alla fine dell'array
+        }
+
+        Image image = new Image(getClass().getResourceAsStream(immaginiSfondo[currentImageIndex]));
+        imageView.setImage(image);
+
+        currentImageIndex++; // Passa alla prossima immagine
     }
 }
