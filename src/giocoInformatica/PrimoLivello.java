@@ -1,13 +1,12 @@
-
 package giocoInformatica;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.scene.image.ImageView;
 
 public class PrimoLivello extends StackPane {
 
@@ -16,46 +15,58 @@ public class PrimoLivello extends StackPane {
     int tileSize = tileOriginale * scala;
     int colonne = 48;
     int righe = 48;
-    public int larghezzaSchermo = tileSize * colonne; // Modificato per renderlo pubblico
-    public int altezzaSchermo = tileSize * righe;     // Modificato per renderlo pubblico
+    public int larghezzaSchermo = tileSize * colonne;
+    public int altezzaSchermo = tileSize * righe;
 
     private ImageView imageView;
-    private String[] immaginiSfondo = {"castle.png", "forest.png", "desert.png"}; // Aggiungi qui i nomi delle immagini che vuoi cambiare
-    private int currentImageIndex = 0; // Indice per l'immagine corrente
+    private String[] immaginiSfondo = {"castle.png", "forest.png", "desert.png"};
+    private int currentImageIndex = 0;
+
+    private Player player;
 
     public PrimoLivello(Stage primaryStage) {
         Pane root = new Pane();
-        Scene scene = new Scene(root, larghezzaSchermo, altezzaSchermo);
+        this.getChildren().add(root);
 
-        // Crea un ImageView per l'immagine di sfondo
         imageView = new ImageView();
         imageView.setFitWidth(larghezzaSchermo);
         imageView.setFitHeight(altezzaSchermo);
         root.getChildren().add(imageView);
 
-        // Avvia il timer per cambiare immagine
+        player = new Player(100, 100);
+        root.getChildren().add(player.getNode());
+
+        // Gestisce gli eventi della tastiera
+        Scene scene = new Scene(this, larghezzaSchermo, altezzaSchermo);
+        scene.setOnKeyPressed(event -> player.handleKeyPress(event));
+        scene.setOnKeyReleased(event -> player.handleKeyRelease(event));  // Aggiunta gestione key release
+
+        // Aggiornamento del gioco
         AnimationTimer timer = new AnimationTimer() {
+            private long lastUpdate = 0;
+
             @Override
             public void handle(long now) {
-                aggiornaImmagine();  // Cambia l'immagine ogni tick del timer
+                if (now - lastUpdate > 2_000_000_000_000L) {
+                    aggiornaImmagine();
+                    lastUpdate = now;
+                }
+                player.update();
             }
         };
-        timer.start(); // Inizia il timer
+        timer.start();
 
-        // Imposta la scena
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     private void aggiornaImmagine() {
-        // Carica l'immagine successiva
         if (currentImageIndex >= immaginiSfondo.length) {
-            currentImageIndex = 0; // Torna alla prima immagine quando arriva alla fine dell'array
+            currentImageIndex = 0;
         }
 
         Image image = new Image(getClass().getResourceAsStream(immaginiSfondo[currentImageIndex]));
         imageView.setImage(image);
-
-        currentImageIndex++; // Passa alla prossima immagine
+        currentImageIndex++;
     }
 }

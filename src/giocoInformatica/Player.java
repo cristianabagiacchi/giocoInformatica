@@ -1,5 +1,6 @@
-/*package giocoInformatica;
+package giocoInformatica;
 
+import javafx.scene.input.KeyEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -15,82 +16,109 @@ public class Player {
     private int frameDelay = 6;
     private int frameCounter = 0;
 
-    // Immagini per le animazioni: [direzione][frame]
-    private Image[][] idleFrames = new Image[4][4];     // 4 direzioni, 4 frame per direzione
-    private Image[][] corsaFrames = new Image[4][8];    // 4 direzioni, 8 frame per direzione
-    private Image[][] attaccoFrames = new Image[4][12]; // 4 direzioni, 12 frame per direzione
+    private Image[][] idleFrames = new Image[4][4];
+    private Image[][] corsaFrames = new Image[4][8];
+    private Image[][] attaccoFrames = new Image[4][12];
 
-    private double x, y; // Posizione
-    public double velocita = 4.0; // Velocità di movimento
+    private double x, y;
+    public double velocita = 2.5;
 
     private ImageView imageView;
+
+    private boolean muoviSu = false, muoviGiu = false, muoviSinistra = false, muoviDestra = false,eseguiAttacco =false;
 
     public Player(double x, double y) {
         this.x = x;
         this.y = y;
-        imageView = new ImageView(); // Crea un ImageView per il giocatore
-        caricaAnimazioni(); // Carica le immagini
-        imageView.setX(x);  // Imposta la posizione iniziale
+        imageView = new ImageView();
+        caricaAnimazioni();
+        imageView.setX(x);
         imageView.setY(y);
-        imageView.setImage(getImmagineAttuale()); // Imposta l'immagine iniziale
+        imageView.setImage(getImmagineAttuale());
     }
 
     private void caricaAnimazioni() {
-        // Carica le immagini da risorse per ogni direzione e tipo di animazione
         for (int dir = 0; dir < 4; dir++) {
             for (int i = 0; i < 4; i++) {
-                String nome = "personaggio/idle/idle_" + dir + "_" + i + ".png";
-                idleFrames[dir][i] = new Image(this.getClass().getResourceAsStream(nome));
+                idleFrames[dir][i] = new Image(this.getClass().getResourceAsStream("personaggio/idle/idle_" + dir + "_" + i + ".png"));
             }
             for (int i = 0; i < 8; i++) {
-                String nome = "personaggio/corsa/corsa_" + dir + "_" + i + ".png";
-                corsaFrames[dir][i] = new Image(this.getClass().getResourceAsStream(nome));
+                corsaFrames[dir][i] = new Image(this.getClass().getResourceAsStream("personaggio/corsa/corsa_" + dir + "_" + i + ".png"));
             }
             for (int i = 0; i < 12; i++) {
-                String nome = "personaggio/attacco/attacco_" + dir + "_" + i + ".png";
-                attaccoFrames[dir][i] = new Image(this.getClass().getResourceAsStream(nome));
+                attaccoFrames[dir][i] = new Image(this.getClass().getResourceAsStream("personaggio/attacco/attacco_" + dir + "_" + i + ".png"));
             }
         }
     }
 
     public ImageView getNode() {
-        // Restituisci il nodo ImageView del giocatore
         return imageView;
     }
 
     public void update() {
-        // Aggiorna il frame corrente
+        double nuovaX = x;
+        double nuovaY = y;
+
+        // Movimento calcolato
+        if (muoviSu) {
+            nuovaY -= velocita;
+            direzioneCorrente = Direzione.GIU;
+            setAzione(Azione.CORSA);
+        }
+        if (muoviGiu) {
+            nuovaY += velocita;
+            direzioneCorrente = Direzione.SU;
+            setAzione(Azione.CORSA);
+        }
+        if (muoviSinistra) {
+            nuovaX -= velocita;
+            direzioneCorrente = Direzione.SINISTRA;
+            setAzione(Azione.CORSA);
+        }
+        if (muoviDestra) {
+            nuovaX += velocita;
+            direzioneCorrente = Direzione.DESTRA;
+            setAzione(Azione.CORSA);
+        }
+        if(eseguiAttacco) {
+        	setAzione(Azione.ATTACCO);
+        }
+
+        // Limiti dello schermo (collisione con i bordi)
+        double playerWidth = imageView.getImage().getWidth();
+        double playerHeight = imageView.getImage().getHeight();
+
+        double schermoLarghezza = 48 * 16 * 3;
+        double schermoAltezza = 48 * 16 * 3;
+
+        if (nuovaX < 0) nuovaX = 0;
+        if (nuovaX + playerWidth > schermoLarghezza) nuovaX = schermoLarghezza - playerWidth;
+
+        if (nuovaY < 0) nuovaY = 0;
+        if (nuovaY + playerHeight > schermoAltezza) nuovaY = schermoAltezza - playerHeight;
+
+        x = nuovaX;
+        y = nuovaY;
+
+        if (!muoviSu && !muoviGiu && !muoviSinistra && !muoviDestra&&!eseguiAttacco) {
+            setAzione(Azione.IDLE);
+        }
+
         frameCounter++;
         if (frameCounter >= frameDelay) {
             frameCounter = 0;
             frame++;
-            int maxFrame = getNumeroFrameAttuale();
-            if (frame >= maxFrame) {
+            if (frame >= getNumeroFrameAttuale()) {
                 frame = 0;
                 if (azioneCorrente == Azione.ATTACCO) {
-                    setAzione(Azione.IDLE); // Ritorna a idle dopo l'attacco
+                    setAzione(Azione.IDLE);
                 }
             }
         }
-        imageView.setImage(getImmagineAttuale()); // Aggiorna l'immagine del giocatore
-    }
 
-    public void muovi(double dx, double dy) {
-        // Movimento del giocatore e gestione direzione
-        if (dx > 0) {
-            direzioneCorrente = Direzione.DESTRA;
-        } else if (dx < 0) {
-            direzioneCorrente = Direzione.SINISTRA;
-        } else if (dy > 0) {
-            direzioneCorrente = Direzione.GIU;
-        } else if (dy < 0) {
-            direzioneCorrente = Direzione.SU;
-        }
-
-        x += dx * velocita;
-        y += dy * velocita;
-        imageView.setX(x);  // Aggiorna la posizione dell'immagine
-        imageView.setY(y);  // Aggiorna la posizione dell'immagine
+        imageView.setImage(getImmagineAttuale());
+        imageView.setX(x);
+        imageView.setY(y);
     }
 
     private int getNumeroFrameAttuale() {
@@ -104,11 +132,10 @@ public class Player {
 
     public void setAzione(Azione azione) {
         azioneCorrente = azione;
-        frame = 0;  // Reset dei frame quando cambia l'azione
+        frame = 0;
     }
 
     private Image getImmagineAttuale() {
-        // Restituisce l'immagine corrente in base all'azione e alla direzione
         int dir = direzioneCorrente.ordinal();
         switch (azioneCorrente) {
             case CORSA:
@@ -120,4 +147,25 @@ public class Player {
                 return idleFrames[dir][frame];
         }
     }
-}*/
+
+    public void handleKeyPress(KeyEvent event) {
+        switch (event.getCode()) {
+            case W: muoviSu = true; break;
+            case S: muoviGiu = true; break;
+            case A: muoviSinistra = true; break;
+            case D: muoviDestra = true; break;
+            case SPACE: setAzione(Azione.ATTACCO); break;
+            default: break;
+        }
+    }
+
+    public void handleKeyRelease(KeyEvent event) {
+        switch (event.getCode()) {
+            case W: muoviSu = false; break;
+            case S: muoviGiu = false; break;
+            case A: muoviSinistra = false; break;
+            case D: muoviDestra = false; break;
+            default: break;
+        }
+    }
+}
