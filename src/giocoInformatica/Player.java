@@ -13,7 +13,7 @@ public class Player {
     private Direzione direzioneCorrente = Direzione.GIU;
 
     private int frame = 0;
-    private int frameDelay = 6;
+    private int frameDelay = 100;
     private int frameCounter = 0;
 
     private Image[][] idleFrames = new Image[4][4];
@@ -25,7 +25,8 @@ public class Player {
 
     private ImageView imageView;
 
-    private boolean muoviSu = false, muoviGiu = false, muoviSinistra = false, muoviDestra = false, eseguiAttacco = false;
+    private boolean muoviSu = false, muoviGiu = false, muoviSinistra = false, muoviDestra = false;
+    private boolean eseguiAttacco = false;  // Variabile per il controllo dell'attacco
 
     // Aggiungi una variabile per la scala
     private double scala = 4; // Scala 4 per ingrandire il personaggio
@@ -86,6 +87,7 @@ public class Player {
             direzioneCorrente = Direzione.DESTRA;
             setAzione(Azione.CORSA);
         }
+
         if (eseguiAttacco) {
             setAzione(Azione.ATTACCO);
         }
@@ -117,6 +119,8 @@ public class Player {
             if (frame >= getNumeroFrameAttuale()) {
                 frame = 0;
                 if (azioneCorrente == Azione.ATTACCO) {
+                    // Quando l'animazione di attacco è finita, torniamo a IDLE
+                    eseguiAttacco = false; // Impostiamo su false per non far ripetere l'attacco
                     setAzione(Azione.IDLE);
                 }
             }
@@ -163,7 +167,11 @@ public class Player {
             case S: muoviGiu = true; break;
             case A: muoviSinistra = true; break;
             case D: muoviDestra = true; break;
-            case SPACE: setAzione(Azione.ATTACCO); break;
+            case SPACE: 
+                if (azioneCorrente != Azione.ATTACCO && !eseguiAttacco) {
+                    eseguiAttacco = true; // Iniziamo l'animazione dell'attacco
+                }
+                break;
             default: break;
         }
     }
