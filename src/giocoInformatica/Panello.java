@@ -20,8 +20,8 @@ public class Panello extends StackPane {
         int tileOriginale = 16;
         int scala = 3;
         int tileSize = tileOriginale * scala;
-        int colonne = 48;
-        int righe = 48;
+        int colonne = 28;
+        int righe = 22;
         int larghezzaSchermo = tileSize * colonne;
         int altezzaSchermo = tileSize * righe;
 

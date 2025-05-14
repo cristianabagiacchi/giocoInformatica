@@ -25,7 +25,10 @@ public class Player {
 
     private ImageView imageView;
 
-    private boolean muoviSu = false, muoviGiu = false, muoviSinistra = false, muoviDestra = false,eseguiAttacco =false;
+    private boolean muoviSu = false, muoviGiu = false, muoviSinistra = false, muoviDestra = false, eseguiAttacco = false;
+
+    // Aggiungi una variabile per la scala
+    private double scala = 4; // Scala 4 per ingrandire il personaggio
 
     public Player(double x, double y) {
         this.x = x;
@@ -35,6 +38,9 @@ public class Player {
         imageView.setX(x);
         imageView.setY(y);
         imageView.setImage(getImmagineAttuale());
+        // Applica la scala
+        imageView.setFitWidth(imageView.getImage().getWidth() * scala);
+        imageView.setFitHeight(imageView.getImage().getHeight() * scala);
     }
 
     private void caricaAnimazioni() {
@@ -80,16 +86,16 @@ public class Player {
             direzioneCorrente = Direzione.DESTRA;
             setAzione(Azione.CORSA);
         }
-        if(eseguiAttacco) {
-        	setAzione(Azione.ATTACCO);
+        if (eseguiAttacco) {
+            setAzione(Azione.ATTACCO);
         }
 
         // Limiti dello schermo (collisione con i bordi)
-        double playerWidth = imageView.getImage().getWidth();
-        double playerHeight = imageView.getImage().getHeight();
+        double playerWidth = imageView.getImage().getWidth() * scala;
+        double playerHeight = imageView.getImage().getHeight() * scala;
 
-        double schermoLarghezza = 48 * 16 * 3;
-        double schermoAltezza = 48 * 16 * 3;
+        double schermoLarghezza = 28 * 16 * 3;
+        double schermoAltezza = 22 * 16 * 3;
 
         if (nuovaX < 0) nuovaX = 0;
         if (nuovaX + playerWidth > schermoLarghezza) nuovaX = schermoLarghezza - playerWidth;
@@ -100,7 +106,7 @@ public class Player {
         x = nuovaX;
         y = nuovaY;
 
-        if (!muoviSu && !muoviGiu && !muoviSinistra && !muoviDestra&&!eseguiAttacco) {
+        if (!muoviSu && !muoviGiu && !muoviSinistra && !muoviDestra && !eseguiAttacco) {
             setAzione(Azione.IDLE);
         }
 
@@ -123,10 +129,13 @@ public class Player {
 
     private int getNumeroFrameAttuale() {
         switch (azioneCorrente) {
-            case CORSA: return 8;
-            case ATTACCO: return 12;
+            case CORSA:
+                return 8;
+            case ATTACCO:
+                return 12;
             case IDLE:
-            default: return 4;
+            default:
+                return 4;
         }
     }
 
