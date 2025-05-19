@@ -1,8 +1,8 @@
 package giocoInformatica;
 
-import javafx.scene.input.KeyEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 
 public class Player {
 
@@ -26,10 +26,9 @@ public class Player {
     private ImageView imageView;
 
     private boolean muoviSu = false, muoviGiu = false, muoviSinistra = false, muoviDestra = false;
-    private boolean eseguiAttacco = false;  // Variabile per il controllo dell'attacco
+    private boolean eseguiAttacco = false;
 
-    // Aggiungi una variabile per la scala
-    private double scala = 4; // Scala 4 per ingrandire il personaggio
+    private double scala = 4;
 
     public Player(double x, double y) {
         this.x = x;
@@ -39,7 +38,6 @@ public class Player {
         imageView.setX(x);
         imageView.setY(y);
         imageView.setImage(getImmagineAttuale());
-        // Applica la scala
         imageView.setFitWidth(imageView.getImage().getWidth() * scala);
         imageView.setFitHeight(imageView.getImage().getHeight() * scala);
     }
@@ -66,15 +64,14 @@ public class Player {
         double nuovaX = x;
         double nuovaY = y;
 
-        // Movimento calcolato
         if (muoviSu) {
             nuovaY -= velocita;
-            direzioneCorrente = Direzione.GIU;
+            direzioneCorrente = Direzione.SU;
             setAzione(Azione.CORSA);
         }
         if (muoviGiu) {
             nuovaY += velocita;
-            direzioneCorrente = Direzione.SU;
+            direzioneCorrente = Direzione.GIU;
             setAzione(Azione.CORSA);
         }
         if (muoviSinistra) {
@@ -92,26 +89,31 @@ public class Player {
             setAzione(Azione.ATTACCO);
         }
 
-        // Limiti dello schermo (collisione con i bordi)
-        double playerWidth = imageView.getImage().getWidth() * scala;
-        double playerHeight = imageView.getImage().getHeight() * scala;
+        // Calcolo dimensioni effettive del personaggio
+        double playerWidth = imageView.getFitWidth();
+        double playerHeight = imageView.getFitHeight();
 
-        double schermoLarghezza = 28 * 16 * 3;
-        double schermoAltezza = 22 * 16 * 3;
+        // Dimensioni dello schermo (usa Config se disponibile)
+        double schermoLarghezza = Config.LARGHEZZA_SCHERMO;
+        double schermoAltezza = Config.ALTEZZA_SCHERMO;
 
+        // GESTIONE COLLISIONI CON I BORDI
         if (nuovaX < 0) nuovaX = 0;
         if (nuovaX + playerWidth > schermoLarghezza) nuovaX = schermoLarghezza - playerWidth;
 
         if (nuovaY < 0) nuovaY = 0;
         if (nuovaY + playerHeight > schermoAltezza) nuovaY = schermoAltezza - playerHeight;
 
+        // Aggiorna posizione interna
         x = nuovaX;
         y = nuovaY;
 
+        // Se non si sta muovendo o attaccando, torna a idle
         if (!muoviSu && !muoviGiu && !muoviSinistra && !muoviDestra && !eseguiAttacco) {
             setAzione(Azione.IDLE);
         }
 
+        // Animazione
         frameCounter++;
         if (frameCounter >= frameDelay) {
             frameCounter = 0;
@@ -119,13 +121,13 @@ public class Player {
             if (frame >= getNumeroFrameAttuale()) {
                 frame = 0;
                 if (azioneCorrente == Azione.ATTACCO) {
-                    // Quando l'animazione di attacco è finita, torniamo a IDLE
-                    eseguiAttacco = false; // Impostiamo su false per non far ripetere l'attacco
+                    eseguiAttacco = false;
                     setAzione(Azione.IDLE);
                 }
             }
         }
 
+        // Aggiorna immagine e posizione grafica
         imageView.setImage(getImmagineAttuale());
         imageView.setX(x);
         imageView.setY(y);
@@ -133,13 +135,10 @@ public class Player {
 
     private int getNumeroFrameAttuale() {
         switch (azioneCorrente) {
-            case CORSA:
-                return 8;
-            case ATTACCO:
-                return 12;
+            case CORSA: return 8;
+            case ATTACCO: return 12;
             case IDLE:
-            default:
-                return 4;
+            default: return 4;
         }
     }
 
@@ -151,13 +150,10 @@ public class Player {
     private Image getImmagineAttuale() {
         int dir = direzioneCorrente.ordinal();
         switch (azioneCorrente) {
-            case CORSA:
-                return corsaFrames[dir][frame];
-            case ATTACCO:
-                return attaccoFrames[dir][frame];
+            case CORSA: return corsaFrames[dir][frame];
+            case ATTACCO: return attaccoFrames[dir][frame];
             case IDLE:
-            default:
-                return idleFrames[dir][frame];
+            default: return idleFrames[dir][frame];
         }
     }
 
@@ -167,9 +163,9 @@ public class Player {
             case S: muoviGiu = true; break;
             case A: muoviSinistra = true; break;
             case D: muoviDestra = true; break;
-            case SPACE: 
+            case SPACE:
                 if (azioneCorrente != Azione.ATTACCO && !eseguiAttacco) {
-                    eseguiAttacco = true; // Iniziamo l'animazione dell'attacco
+                    eseguiAttacco = true;
                 }
                 break;
             default: break;
@@ -185,4 +181,19 @@ public class Player {
             default: break;
         }
     }
+
+    // ➕ Metodi aggiunti per supportare movimento da PrimoLivello
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public void move(double moveX, double moveY) {
+        x += moveX;
+        y += moveY;
+    }
 }
+

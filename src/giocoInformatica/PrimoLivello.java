@@ -8,6 +8,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.scene.input.KeyEvent;
 
 public class PrimoLivello extends StackPane {
 
@@ -16,8 +17,8 @@ public class PrimoLivello extends StackPane {
     int tileSize = tileOriginale * scala;
     int colonne = 28;
     int righe = 22;
-    int larghezzaSchermo = tileSize * colonne;
-    int altezzaSchermo = tileSize * righe;
+    public int larghezzaSchermo = tileSize * colonne;
+    public int altezzaSchermo = tileSize * righe;
 
     private ImageView imageView;
     private String[] immaginiSfondo = {"castle.png"};
@@ -25,9 +26,8 @@ public class PrimoLivello extends StackPane {
 
     private Player player;
 
-    // Aggiungi la barra della vita
     private ProgressBar barraVita;
-    private static final double MAX_HEALTH = 100.0;  // Salute massima
+    private static final double MAX_HEALTH = 100.0;
     private double health = MAX_HEALTH;
 
     public PrimoLivello(Stage primaryStage) {
@@ -39,45 +39,72 @@ public class PrimoLivello extends StackPane {
         imageView.setFitHeight(altezzaSchermo);
         root.getChildren().add(imageView);
 
+        aggiornaImmagine();  // carica l'immagine iniziale
+
         player = new Player(400, 400);
         root.getChildren().add(player.getNode());
 
-        // Barra della vita
         barraVita = new ProgressBar();
-        barraVita.setProgress(1.0); // Imposta la barra inizialmente piena
+        barraVita.setProgress(1.0);
         barraVita.setPrefWidth(200);
         barraVita.setPrefHeight(20);
         barraVita.setStyle("-fx-accent: red;");
-
-        // Posiziona la barra della vita in alto a sinistra
         barraVita.setTranslateX(10);
         barraVita.setTranslateY(10);
         root.getChildren().add(barraVita);
 
-        // Gestisce gli eventi della tastiera
+        // Imposta la scena su questo StackPane
         Scene scene = new Scene(this, larghezzaSchermo, altezzaSchermo);
-        scene.setOnKeyPressed(event -> player.handleKeyPress(event));
-        scene.setOnKeyReleased(event -> player.handleKeyRelease(event));
+        primaryStage.setScene(scene);
 
-        // Aggiornamento del gioco
+        // Focus necessario per ricevere gli eventi da tastiera
+        this.setFocusTraversable(true);
+        this.requestFocus();
+
+        // Eventi tastiera
+        scene.setOnKeyPressed(event -> {
+            player.handleKeyPress(event);
+        });
+
+        scene.setOnKeyReleased(event -> {
+            player.handleKeyRelease(event);
+        });
+
         AnimationTimer timer = new AnimationTimer() {
             private long lastUpdate = 0;
 
             @Override
             public void handle(long now) {
-                if (now - lastUpdate > 2_000_000_000_000L) {
+                if (now - lastUpdate > 10_000_000_000L) { // ogni 10 secondi cambia sfondo (opzionale)
                     aggiornaImmagine();
                     lastUpdate = now;
                 }
+
+                // Aggiorna animazioni e posizione del giocatore
                 player.update();
 
-                // Aggiorna la barra della vita in base alla salute del giocatore
+                // Ottieni la posizione del giocatore
+                double playerX = player.getX();
+                double playerY = player.getY();
+                double playerWidth = player.getNode().getImage().getWidth() * 3;
+                double playerHeight = player.getNode().getImage().getHeight() * 3;
+
+                // Limiti di movimento
+                if (playerX < 0) playerX = 0;
+                if (playerX + playerWidth > larghezzaSchermo) playerX = larghezzaSchermo - playerWidth;
+
+                if (playerY < 0) playerY = 0;
+                if (playerY + playerHeight > altezzaSchermo) playerY = altezzaSchermo - playerHeight;
+
+                // Aggiorna la posizione del giocatore
+                player.getNode().setX(playerX);
+                player.getNode().setY(playerY);
+
                 updateHealthBar();
             }
         };
         timer.start();
 
-        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
@@ -91,12 +118,10 @@ public class PrimoLivello extends StackPane {
         currentImageIndex++;
     }
 
-    // Metodo per aggiornare la barra della vita
     private void updateHealthBar() {
         barraVita.setProgress(health / MAX_HEALTH);
     }
 
-    // Metodo per danneggiare il giocatore (ad esempio quando viene colpito)
     public void takeDamage(double damage) {
         health -= damage;
         if (health < 0) {
@@ -105,7 +130,6 @@ public class PrimoLivello extends StackPane {
         updateHealthBar();
     }
 
-    // Metodo per curare il giocatore (ad esempio quando prende una pozione)
     public void heal(double healAmount) {
         health += healAmount;
         if (health > MAX_HEALTH) {

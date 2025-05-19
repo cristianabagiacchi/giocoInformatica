@@ -14,7 +14,7 @@ public class Finestra extends Application {
         primaryStage.setTitle("Gioco");
         
         // Imposta dimensioni finestra fisse
-        primaryStage.setWidth(1280);  // oppure Config.LARGHEZZA_SCHERMO se centralizzi
+        primaryStage.setWidth(1280); 
         primaryStage.setHeight(720);
 
         // Disattiva schermo intero
