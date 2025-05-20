@@ -64,14 +64,15 @@ public class Player {
         double nuovaX = x;
         double nuovaY = y;
 
+        
         if (muoviSu) {
             nuovaY -= velocita;
-            direzioneCorrente = Direzione.SU;
+            direzioneCorrente = Direzione.GIU;
             setAzione(Azione.CORSA);
         }
         if (muoviGiu) {
             nuovaY += velocita;
-            direzioneCorrente = Direzione.GIU;
+            direzioneCorrente = Direzione.SU;
             setAzione(Azione.CORSA);
         }
         if (muoviSinistra) {
@@ -92,22 +93,43 @@ public class Player {
         // Calcolo dimensioni effettive del personaggio
         double playerWidth = imageView.getFitWidth();
         double playerHeight = imageView.getFitHeight();
+        
+     // Limiti della finestra
+        double screenWidth = 1350;  // larghezza finestra
+        double screenHeight = 750; // altezza finestra
 
-        // Dimensioni dello schermo (usa Config se disponibile)
-        double schermoLarghezza = Config.LARGHEZZA_SCHERMO;
-        double schermoAltezza = Config.ALTEZZA_SCHERMO;
 
         // GESTIONE COLLISIONI CON I BORDI
-        if (nuovaX < 0) nuovaX = 0;
-        if (nuovaX + playerWidth > schermoLarghezza) nuovaX = schermoLarghezza - playerWidth;
+        // Collisione con il bordo sinistro
+        if (nuovaX < 0) {
+            nuovaX = 0;
+            System.out.println("Collisione con il bordo sinistro");
+        }
 
-        if (nuovaY < 0) nuovaY = 0;
-        if (nuovaY + playerHeight > schermoAltezza) nuovaY = schermoAltezza - playerHeight;
+        // Collisione con il bordo destro
+        if (nuovaX + playerWidth > screenWidth) {
+            nuovaX = screenWidth - playerWidth;
+            System.out.println("Collisione con il bordo destro");
+        }
 
+        // Collisione con il bordo superiore
+        
+        if (nuovaY < 0) {
+            nuovaY = 0;
+            System.out.println("Collisione con il bordo superiore");
+        }
+
+        // Collisione con il bordo inferiore
+        if (nuovaY + playerHeight > screenHeight) {
+            nuovaY = screenHeight - playerHeight;
+            System.out.println("Collisione con il bordo inferiore");
+        }
         // Aggiorna posizione interna
         x = nuovaX;
         y = nuovaY;
 
+        // Debug: stampa la posizione dopo la collisione
+        System.out.println("Posizione dopo collisione - X: " + x + " Y: " + y);
         // Se non si sta muovendo o attaccando, torna a idle
         if (!muoviSu && !muoviGiu && !muoviSinistra && !muoviDestra && !eseguiAttacco) {
             setAzione(Azione.IDLE);
