@@ -31,7 +31,7 @@ public class Enemy {
         imageView.setY(y);
 
         // Carica l'immagine del nemico
-        imageView.setImage(new Image(this.getClass().getResourceAsStream("nemico.png")));
+        imageView.setImage(new Image(this.getClass().getResourceAsStream("edopanfo.png")));
         imageView.setFitWidth(imageView.getImage().getWidth() * scala);
         imageView.setFitHeight(imageView.getImage().getHeight() * scala);
 
