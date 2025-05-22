@@ -1,5 +1,8 @@
 package giocoInformatica;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressBar;
@@ -16,8 +19,9 @@ public class PrimoLivello extends StackPane {
     int tileSize = tileOriginale * scala;
     int colonne = 28;
     int righe = 22;
-    public int larghezzaSchermo = tileSize * colonne;
-    public int altezzaSchermo = tileSize * righe;
+    public int larghezzaSchermo = 1350;
+    public int altezzaSchermo = 750;
+    private ArrayList<Enemy> enemies;  // Lista per gestire i nemici
 
     private ImageView imageView;
     private String[] immaginiSfondo = {"castle.png"};
@@ -31,9 +35,12 @@ public class PrimoLivello extends StackPane {
     private double health = MAX_HEALTH;
 
     public PrimoLivello(Stage primaryStage) {
+    	
+        
         // Crea il root Pane
         root = new Pane();
         this.getChildren().add(root);
+
 
         // Crea e configura l'ImageView per lo sfondo
         imageView = new ImageView();
@@ -57,6 +64,20 @@ public class PrimoLivello extends StackPane {
         barraVita.setTranslateX(10);
         barraVita.setTranslateY(10);
         root.getChildren().add(barraVita);
+        
+     // Crea la lista di nemici
+        enemies = new ArrayList<>();
+
+        // Aggiungi nemici al gioco (puoi aggiungerne quanti vuoi)
+        for (int i = 0; i < 20; i++) {  // Per esempio, 5 nemici
+        	double x = Math.random() * larghezzaSchermo;  // Posizione casuale sull'asse X (0 - 1350)
+            double y = Math.random() * altezzaSchermo;   // Posizione casuale sull'asse Y (0 - 750)
+            Enemy enemy = new Enemy();  // Crea un nemico
+            System.out.println("Nemico creato: x=" + x + ", y=" + y);
+            enemies.add(enemy);  // Aggiungi il nemico alla lista
+            root.getChildren().add(enemy.getNode());  // Aggiungi il nemico alla scena
+            System.out.println("Nemico aggiunto alla scena: " + enemy);
+        }
 
         // Imposta la scena e aggiungi il root
         Scene scene = new Scene(this, larghezzaSchermo, altezzaSchermo);
@@ -84,13 +105,13 @@ public class PrimoLivello extends StackPane {
 
             @Override
             public void handle(long now) {
-                if (now - lastUpdate > 10_000_000_000L) { // Ogni 10 secondi cambia lo sfondo (opzionale)
-                    aggiornaImmagine();
-                    lastUpdate = now;
-                }
-
                 // Aggiorna la posizione del giocatore
                 player.update();
+
+                // Aggiorna la posizione dei nemici
+                for (Enemy enemy : enemies) {
+                    enemy.update();  // Aggiorna il movimento e il comportamento del nemico
+                }
 
                 // Ottieni la posizione del giocatore (usando getLayoutX() e getLayoutY())
                 double playerX = player.getNode().getLayoutX();
@@ -115,9 +136,6 @@ public class PrimoLivello extends StackPane {
             }
         };
         timer.start();
-
-        // Mostra la scena
-        primaryStage.show();
     }
 
     // Metodo per aggiornare l'immagine di sfondo

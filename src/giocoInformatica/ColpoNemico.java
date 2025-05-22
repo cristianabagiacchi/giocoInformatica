@@ -20,9 +20,9 @@ public class ColpoNemico {
     }
 
     public void update() {
+        // Aggiorna la posizione del colpo in base alla direzione
         x += velocitaX;
         y += velocitaY;
-
         imageView.setX(x);
         imageView.setY(y);
     }

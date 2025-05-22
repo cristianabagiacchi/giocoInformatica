@@ -2,129 +2,70 @@ package giocoInformatica;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Rectangle;
 import java.util.Random;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
 
 public class Enemy {
+    private static final double VELOCITA_MOVIMENTO = 1.0;  // Velocità di movimento
     private double x, y;
-    private double velocita = 1.5;
-    private ImageView imageView;
-    private double scala = 4;
-    private Random rand = new Random();
+    private ImageView enemyImageView;
+    private Pane root;
 
-    // Riferimento al personaggio
-    private Player player;
+    public Enemy() {
+        // Imposta una posizione casuale per il nemico
+        Random random = new Random();
+        this.x = random.nextDouble() * 800;  // Posizione casuale lungo la larghezza dello schermo
+        this.y = random.nextDouble() * 600;  // Posizione casuale lungo l'altezza dello schermo
 
-    // Per sparare proiettili
-    private Timeline sparoTimeline;
-
-    // Costruttore
-    public Enemy(double x, double y, Player player) {
-        this.x = x;
-        this.y = y;
-        this.player = player;
-
-        imageView = new ImageView();
-        imageView.setX(x);
-        imageView.setY(y);
-
+     // Verifica del percorso dell'immagine
+        System.out.println(getClass().getResource("edopanfo.png"));
+        
         // Carica l'immagine del nemico
-        imageView.setImage(new Image(this.getClass().getResourceAsStream("edopanfo.png")));
-        imageView.setFitWidth(imageView.getImage().getWidth() * scala);
-        imageView.setFitHeight(imageView.getImage().getHeight() * scala);
+        Image enemy = new Image(getClass().getResourceAsStream("edopanfo.png"));  // Sostituisci con il percorso dell'immagine
+        
+        // Verifica se l'immagine è stata caricata correttamente
+        if (enemy.isError()) {
+            System.out.println("Errore nel caricamento dell'immagine.");
+        }else {
+            System.out.println("Immagine caricata correttamente!");
+        }
+        
+        enemyImageView = new ImageView(enemy);
+        enemyImageView.setX(x);
+        enemyImageView.setY(y);
+        enemyImageView.setFitWidth(250);  // Imposta la larghezza dell'immagine del nemico
+        enemyImageView.setFitHeight(250); // Imposta l'altezza dell'immagine del nemico
+        
+       
+        
+        
 
-        // Movimento casuale del nemico
-        movimentoCasuale();
-
-        // Gestione sparo
-        gestisciSparo();
+        root = new Pane();
+        root.getChildren().add(enemyImageView);
     }
 
-    public ImageView getNode() {
-        return imageView;
-    }
-
+    // Metodo per aggiornare il movimento del nemico
     public void update() {
-        // Movimento casuale
-        movimentoCasuale();
+        // Muove il nemico in modo casuale
+        Random random = new Random();
+        x += random.nextDouble() * VELOCITA_MOVIMENTO - VELOCITA_MOVIMENTO / 2;  // Movimento casuale lungo l'asse X
+        y += random.nextDouble() * VELOCITA_MOVIMENTO - VELOCITA_MOVIMENTO / 2;  // Movimento casuale lungo l'asse Y
 
-        // Sparo verso il personaggio
-        if (rand.nextInt(100) < 1) { // 1% di probabilità di sparare ogni frame
-            sparaVersoPersonaggio();
-        }
-    }
+        // Aggiorna la posizione dell'immagine del nemico
+        enemyImageView.setX(x);
+        enemyImageView.setY(y);
+      
 
-    private void movimentoCasuale() {
-        // Movimento casuale del nemico sulla mappa
-        int direzione = rand.nextInt(4); // 0 = su, 1 = giù, 2 = sinistra, 3 = destra
-        switch (direzione) {
-            case 0: // Su
-                y -= velocita;
-                break;
-            case 1: // Giù
-                y += velocita;
-                break;
-            case 2: // Sinistra
-                x -= velocita;
-                break;
-            case 3: // Destra
-                x += velocita;
-                break;
-        }
-
-        // Limiti della finestra
-        double screenWidth = 1350;  // larghezza finestra
-        double screenHeight = 750; // altezza finestra
-
-        // Prevenire il nemico di uscire dai bordi
+        // Se il nemico esce dai bordi dello schermo, lo riposiziona casualmente all'interno dello schermo
         if (x < 0) x = 0;
-        if (x > screenWidth - imageView.getFitWidth()) x = screenWidth - imageView.getFitWidth();
+        if (x > 800) x = 800;  // Limita il movimento all'interno dello schermo (larghezza)
         if (y < 0) y = 0;
-        if (y > screenHeight - imageView.getFitHeight()) y = screenHeight - imageView.getFitHeight();
-
-        // Aggiorna la posizione del nemico
-        imageView.setX(x);
-        imageView.setY(y);
+        if (y > 600) y = 600;  // Limita il movimento all'interno dello schermo (altezza)
     }
 
-    private void gestisciSparo() {
-        // Ogni 3 secondi, il nemico prova a sparare
-        sparoTimeline = new Timeline(new KeyFrame(Duration.seconds(3), e -> {
-            sparaVersoPersonaggio();
-        }));
-        sparoTimeline.setCycleCount(Timeline.INDEFINITE);
-        sparoTimeline.play();
-    }
-
-    private void sparaVersoPersonaggio() {
-        double dx = player.getX() - x;
-        double dy = player.getY() - y;
-
-        double distanza = Math.sqrt(dx * dx + dy * dy);
-        double velocitaProiettile = 5.0;
-
-        // Normalizza la direzione
-        double direzioneX = dx / distanza;
-        double direzioneY = dy / distanza;
-
-        // Crea e lancia il proiettile
-        ColpoNemico proiettile = new ColpoNemico(x, y, direzioneX * velocitaProiettile, direzioneY * velocitaProiettile);
-        // Aggiungi il proiettile alla scena (per esempio se hai una lista di proiettili)
-        // scena.getChildren().add(proiettile.getNode());
-    }
-
-    // Metodo per fermare il nemico
-    public void fermati() {
-        sparoTimeline.stop();
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
+    // Restituisce il nodo che rappresenta il nemico
+    public Rectangle getNode() {
+        return new Rectangle(x, y, 50, 50);  // Puoi anche restituire il nodo dell'immagine
     }
 }
