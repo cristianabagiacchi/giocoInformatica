@@ -45,7 +45,13 @@ public class Panello extends StackPane {
 
         Button startButton = new Button("Inizia Gioco");
         startButton.getStyleClass().add("button"); // Applica la classe CSS
-        startButton.setOnAction(e -> showPrimoLivello());
+    
+        startButton.setOnAction(e -> {
+            PrimoLivello primoLivello = new PrimoLivello(primaryStage);
+            Scene gameScene = new Scene(primoLivello, primoLivello.larghezzaSchermo, primoLivello.altezzaSchermo);
+            primaryStage.setScene(gameScene);
+            primaryStage.show();
+        });
 
         Button settingsButton = new Button("Indice Tasti"); // Nuovo pulsante
         settingsButton.getStyleClass().add("button");
@@ -74,6 +80,8 @@ public class Panello extends StackPane {
         menuLayout.getChildren().addAll(titolo, startButton, impostazioniLayout, exitButton);
         this.getChildren().add(menuLayout);
     }
+    
+    
 
     public void showPrimoLivello() {
         PrimoLivello primoLivello = new PrimoLivello(primaryStage);
@@ -82,6 +90,8 @@ public class Panello extends StackPane {
         // primaryStage.setScene(scene);
         // primaryStage.show();
     }
+    
+    
 
     // Metodo per mostrare o nascondere le impostazioni
     private void mostraNascondiImpostazioni() {

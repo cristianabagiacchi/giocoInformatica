@@ -1,8 +1,6 @@
 package giocoInformatica;
 
 import java.util.ArrayList;
-import java.util.Random;
-
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressBar;
@@ -10,18 +8,23 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.control.Button;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.paint.Color;
+import javafx.geometry.Pos;
+
 
 public class PrimoLivello extends StackPane {
 
-    int tileOriginale = 16;
-    int scala = 3;
-    int tileSize = tileOriginale * scala;
-    int colonne = 28;
-    int righe = 22;
     public int larghezzaSchermo = 1350;
     public int altezzaSchermo = 750;
     private ArrayList<Enemy> enemies;  // Lista per gestire i nemici
+    private ArrayList<ColpoNemico> enemyBullets = new ArrayList<>();
+    private ArrayList<ColpoPlayer> playerBullets = new ArrayList<>();
+
 
     private ImageView imageView;
     private String[] immaginiSfondo = {"castle.png"};
@@ -33,13 +36,40 @@ public class PrimoLivello extends StackPane {
     private ProgressBar barraVita;
     private static final double MAX_HEALTH = 100.0;
     private double health = MAX_HEALTH;
+    
+    private Text gameOverText;
+    private Button backToMenuButton;
+    private Stage primaryStage;
+    private VBox gameOverBox;
+
 
     public PrimoLivello(Stage primaryStage) {
-    	
+    	this.primaryStage = primaryStage;  // SALVA il riferimento allo stage
+
         
         // Crea il root Pane
         root = new Pane();
         this.getChildren().add(root);
+        
+        StackPane overlay = new StackPane();
+        overlay.setPickOnBounds(false);
+        this.getChildren().add(overlay);
+
+        gameOverBox = new VBox(20);       // ✅ diventa campo della classe
+        gameOverBox.setAlignment(Pos.CENTER);
+        gameOverBox.setVisible(false); // Nascondilo all'inizio
+
+        gameOverText = new Text("HAI PERSO");
+        gameOverText.getStyleClass().add("game-over-text"); 
+        gameOverText.setFont(Font.font("Arial", 80));
+        gameOverText.setFill(Color.RED);
+
+        backToMenuButton = new Button("Esci");
+        backToMenuButton.getStyleClass().add("game-over-button");
+        backToMenuButton.setOnAction(e -> System.exit(0));
+
+        gameOverBox.getChildren().addAll(gameOverText, backToMenuButton);  // ✅ OK
+        overlay.getChildren().add(gameOverBox);                             // ✅ OK
 
 
         // Crea e configura l'ImageView per lo sfondo
@@ -65,11 +95,12 @@ public class PrimoLivello extends StackPane {
         barraVita.setTranslateY(10);
         root.getChildren().add(barraVita);
         
+     
      // Crea la lista di nemici
         enemies = new ArrayList<>();
 
         // Aggiungi nemici al gioco (puoi aggiungerne quanti vuoi)
-        for (int i = 0; i < 20; i++) {  // Per esempio, 5 nemici
+        for (int i = 0; i < 5; i++) {  // Per esempio, 5 nemici
         	double x = Math.random() * larghezzaSchermo;  // Posizione casuale sull'asse X (0 - 1350)
             double y = Math.random() * altezzaSchermo;   // Posizione casuale sull'asse Y (0 - 750)
             Enemy enemy = new Enemy();  // Crea un nemico
@@ -82,6 +113,8 @@ public class PrimoLivello extends StackPane {
         // Imposta la scena e aggiungi il root
         Scene scene = new Scene(this, larghezzaSchermo, altezzaSchermo);
         primaryStage.setScene(scene);
+        scene.getStylesheets().add(getClass().getResource("PrimoLivelloStile.css").toExternalForm());
+
 
         // Aggiungi il focus per ricevere gli eventi da tastiera
         this.setFocusTraversable(true);
@@ -107,12 +140,65 @@ public class PrimoLivello extends StackPane {
             public void handle(long now) {
                 // Aggiorna la posizione del giocatore
                 player.update();
+                
+                // Aggiorna la posizione e il comportamento dei nemici
+                for (Enemy enemy : enemies) {
+                    enemy.update();
 
+                    // Controlla se il nemico può sparare adesso
+                    if (enemy.canShoot(now)) {
+                        ColpoNemico colpo = enemy.shoot();
+                        enemyBullets.add(colpo);
+                        root.getChildren().add(colpo.getNode());
+                    }
+                }
+
+                // Aggiorna i colpi nemici e rimuovi quelli fuori schermo
+                ArrayList<ColpoNemico> toRemove = new ArrayList<>();
+                for (ColpoNemico colpo : enemyBullets) {
+                    colpo.update();
+
+                    // Controlla collisione col player
+                    if (player.getNode().getBoundsInParent().intersects(colpo.getNode().getBoundsInParent())) {
+                        takeDamage(10);  // togli 10 punti di vita (puoi cambiare il valore)
+                        root.getChildren().remove(colpo.getNode());
+                        toRemove.add(colpo);
+                        continue;  // passa al prossimo colpo, questo è stato rimosso
+                    }
+
+                    // Rimuovi colpo se è fuori schermo
+                    if (colpo.getNode().getX() < -50) {
+                        root.getChildren().remove(colpo.getNode());
+                        toRemove.add(colpo);
+                    }
+                }
+                enemyBullets.removeAll(toRemove);
                 // Aggiorna la posizione dei nemici
                 for (Enemy enemy : enemies) {
                     enemy.update();  // Aggiorna il movimento e il comportamento del nemico
                 }
 
+                
+                // Lista di colpi da rimuovere e nemici da rimuovere
+                ArrayList<ColpoPlayer> colpiDaRimuovere = new ArrayList<>();
+                ArrayList<Enemy> nemiciDaRimuovere = new ArrayList<>();
+
+                for (ColpoPlayer colpo : playerBullets) {
+                    for (Enemy enemy : enemies) {
+                        if (colpo.getNode().getBoundsInParent().intersects(enemy.getNode().getBoundsInParent())) {
+                            // Collisione rilevata: rimuovi nemico e colpo
+                            nemiciDaRimuovere.add(enemy);
+                            colpiDaRimuovere.add(colpo);
+                            root.getChildren().remove(enemy.getNode());
+                            root.getChildren().remove(colpo.getNode());
+                            break;  // Esci dal ciclo nemici per questo colpo
+                        }
+                    }
+                }
+
+                // Rimuovi i nemici morti e i colpi sparati
+                enemies.removeAll(nemiciDaRimuovere);
+                playerBullets.removeAll(colpiDaRimuovere);
                 // Ottieni la posizione del giocatore (usando getLayoutX() e getLayoutY())
                 double playerX = player.getNode().getLayoutX();
                 double playerY = player.getNode().getLayoutY();
@@ -153,16 +239,22 @@ public class PrimoLivello extends StackPane {
     // Metodo per aggiornare la barra della vita
     private void updateHealthBar() {
         barraVita.setProgress(health / MAX_HEALTH);
+        if (health <= 0) {
+        	gameOverBox.setVisible(true);
+        	root.setDisable(true);// blocca interazioni col gioco
+        }
     }
-
     // Metodo per ridurre la vita del giocatore (prendere danno)
     public void takeDamage(double damage) {
+        System.out.println("takeDamage chiamato con danno: " + damage + ", health prima: " + health);
         health -= damage;
         if (health < 0) {
             health = 0;
         }
+        System.out.println("health dopo: " + health);
         updateHealthBar();
     }
+    
 
     // Metodo per guarire il giocatore
     public void heal(double healAmount) {
@@ -179,12 +271,12 @@ public class PrimoLivello extends StackPane {
 
         ImageView playerImage = player.getImageView();
 
-        // Calcolo posizione di partenza del colpo più precisa
-        double colpoX = playerImage.getX() + playerImage.getFitWidth()/3; // appena dopo il bordo destro
-        double colpoY = playerImage.getY() + playerImage.getFitHeight() / 2; // centro verticale del personaggio - metà altezza colpo
+        double colpoX = playerImage.getX() + playerImage.getFitWidth()/3;
+        double colpoY = playerImage.getY() + playerImage.getFitHeight() / 2;
 
         ColpoPlayer colpo = new ColpoPlayer(colpoX, colpoY, Player.Direzione.DESTRA);
 
+        playerBullets.add(colpo);            // Aggiunto alla lista
         root.getChildren().add(colpo.getNode());
 
         AnimationTimer colpoTimer = new AnimationTimer() {
@@ -193,6 +285,7 @@ public class PrimoLivello extends StackPane {
                 colpo.update();
                 if (colpo.getX() > larghezzaSchermo) {
                     root.getChildren().remove(colpo.getNode());
+                    playerBullets.remove(colpo);  // Rimuovi dalla lista quando esce
                     stop();
                 }
             }

@@ -14,7 +14,9 @@ public class ColpoNemico {
         this.velocitaX = velocitaX;
         this.velocitaY = velocitaY;
 
-        imageView = new ImageView(new Image(this.getClass().getResourceAsStream("proiettile.png")));
+        imageView = new ImageView(new Image(this.getClass().getResourceAsStream("colponemico.png")));
+        imageView.setFitWidth(30);  // Imposta la larghezza dell'immagine del colpo
+        imageView.setFitHeight(30); // Imposta l'altezza dell'immagine del colpo
         imageView.setX(x);
         imageView.setY(y);
     }

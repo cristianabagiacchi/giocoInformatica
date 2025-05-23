@@ -1,0 +1,38 @@
+/* Stile per il testo "HAI PERSO" */
+.game-over-text {
+    -fx-font-family: "Times New Roman", serif;
+    -fx-font-size: 80px; /* Più piccolo rispetto al titolo principale */
+    -fx-text-fill: #B22222; /* Rosso scuro */
+    -fx-font-weight: bold;
+    -fx-font-style: italic;
+    -fx-effect: dropshadow(gaussian, black, 8, 0.8, 0, 5);
+    -fx-translate-y: 0px;
+    -fx-rotate: 0;
+    -fx-padding: 10px;
+    -fx-alignment: center;
+}
+
+/* Stile per il bottone "Torna al Menu" o "Esci" */
+.game-over-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 22px;
+    -fx-padding: 12px 25px;
+    -fx-border-radius: 15;
+    -fx-border-color: white;
+    -fx-border-width: 2;
+    -fx-cursor: hand;
+    -fx-background-radius: 15;
+}
+
+/* Effetto hover del bottone */
+.game-over-button:hover {
+    -fx-background-color: #8B0000;
+    -fx-text-fill: white;
+}
+
+/* Effetto quando il bottone è premuto */
+.game-over-button:pressed {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: white;
+}

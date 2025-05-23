@@ -20,7 +20,7 @@ public class Player {
     private Image[][] corsaFrames = new Image[4][8];
 
     private double x, y;
-    public double velocita = 2.5;
+    public double velocita = 3.5;
 
     private ImageView imageView;
 

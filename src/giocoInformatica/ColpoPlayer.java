@@ -6,7 +6,7 @@ import javafx.scene.image.ImageView;
 public class ColpoPlayer {
 
     private double x, y;
-    private double velocita = 5; // Velocità del colpo
+    private double velocita = 7; // Velocità del colpo
     private Player.Direzione direzione;
     private ImageView imageView;
 
