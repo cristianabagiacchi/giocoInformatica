@@ -41,6 +41,8 @@ public class PrimoLivello extends StackPane {
     private Button backToMenuButton;
     private Stage primaryStage;
     private VBox gameOverBox;
+    private AnimationTimer timer;
+
 
 
     public PrimoLivello(Stage primaryStage) {
@@ -133,7 +135,7 @@ public class PrimoLivello extends StackPane {
         });
 
         // Crea un timer per animazioni e aggiornamenti
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
             private long lastUpdate = 0;
 
             @Override
@@ -150,7 +152,10 @@ public class PrimoLivello extends StackPane {
                         ColpoNemico colpo = enemy.shoot();
                         enemyBullets.add(colpo);
                         root.getChildren().add(colpo.getNode());
+                        
                     }
+                    
+                  
                 }
 
                 // Aggiorna i colpi nemici e rimuovi quelli fuori schermo
@@ -199,6 +204,12 @@ public class PrimoLivello extends StackPane {
                 // Rimuovi i nemici morti e i colpi sparati
                 enemies.removeAll(nemiciDaRimuovere);
                 playerBullets.removeAll(colpiDaRimuovere);
+                
+                if (enemies.isEmpty()) {
+                	passaggioAlSecondoLivello();
+                    return;
+                }
+
                 // Ottieni la posizione del giocatore (usando getLayoutX() e getLayoutY())
                 double playerX = player.getNode().getLayoutX();
                 double playerY = player.getNode().getLayoutY();
@@ -292,4 +303,24 @@ public class PrimoLivello extends StackPane {
         };
         colpoTimer.start();
     }
+    
+    private void passaggioAlSecondoLivello() {
+    	heal(50);
+        cleanup(); // fondamentale
+        timer.stop(); // FERMA il loop del primo livello
+
+        SecondoLivello secondoLivello = new SecondoLivello(primaryStage);
+        primaryStage.getScene().setRoot(secondoLivello);
+    }
+    
+    private void cleanup() {
+        root.getChildren().clear();
+        enemyBullets.clear();
+        playerBullets.clear();
+        enemies.clear();
+        if (timer != null) {
+            timer.stop();                     // FERMATA fondamentale
+        }
+    }
+
 }

@@ -25,6 +25,8 @@ public class Enemy {
         Image enemy = new Image(getClass().getResourceAsStream("edopanfo.png"));  // Sostituisci con il percorso dell'immagine
         
         
+        
+        
         enemyImageView = new ImageView(enemy);
         enemyImageView.setX(x);
         enemyImageView.setY(y);
@@ -33,6 +35,17 @@ public class Enemy {
  
         root = new Pane();
         root.getChildren().add(enemyImageView);
+    }
+    
+    
+    public void setImage(String imagePath) {
+        Image imageSecondoLivello = new Image(getClass().getResourceAsStream(imagePath));
+        enemyImageView.setImage(imageSecondoLivello);
+        System.out.println("immagine cambiata");
+    }
+    
+    public ImageView getImageView() {
+        return enemyImageView;
     }
 
     // Metodo per aggiornare il movimento del nemico
