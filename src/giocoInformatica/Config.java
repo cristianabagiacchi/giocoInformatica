@@ -3,18 +3,23 @@ package giocoInformatica;
 public class Config {
 
     // Dimensione base del singolo tile (in pixel)
-    public static final int TILE_ORIGINALE = 16;
+    public static final int dimensioneTileOriginale = 16;
 
     // Fattore di scala per ingrandire i tile
-    public static final int SCALA = 3;
+    public static final int fattoreScala = 3;
 
-    // Numero di colonne e righe visibili sullo schermo
-    public static final int COLONNE = 40;
-    public static final int RIGHE = 22;
+    // Numero di colonne visibili sullo schermo
+    public static final int numeroColonne = 45; // 1350 / (16*3) = 1350/48 = 28.125 ma per adattare puoi aumentare il numero di colonne
 
-    // Calcolo automatico delle dimensioni dello schermo in pixel
-    public static final int TILE_SIZE = TILE_ORIGINALE * SCALA;
-    public static final int LARGHEZZA_SCHERMO = TILE_SIZE * COLONNE;
-    public static final int ALTEZZA_SCHERMO = TILE_SIZE * RIGHE;
+    // Numero di righe visibili sullo schermo
+    public static final int numeroRighe = 15; // 750 / (16*3) = 750/48 = 15.625 quindi 15 righe
+
+    // Calcolo della dimensione di un tile scalato (dimensione reale di un tile sullo schermo)
+    public static final int dimensioneTile = dimensioneTileOriginale * fattoreScala;
+
+    // Larghezza dello schermo in pixel (fissa)
+    public static final int larghezzaSchermo = 1350;
+
+    // Altezza dello schermo in pixel (fissa)
+    public static final int altezzaSchermo = 750;
 }
-

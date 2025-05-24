@@ -6,132 +6,141 @@ import javafx.scene.input.KeyEvent;
 
 public class Player {
 
+    // Enum per definire lo stato del player: fermo (IDLE) o in corsa (CORSA)
     public enum Azione { IDLE, CORSA }
+    
+    // Enum per definire la direzione del player
     public enum Direzione { SU, GIU, SINISTRA, DESTRA }
 
-    private Azione azioneCorrente = Azione.IDLE;
-    private Direzione direzioneCorrente = Direzione.GIU;
+    private Azione azioneCorrente = Azione.IDLE;          // Stato attuale del player
+    private Direzione direzioneCorrente = Direzione.GIU;  // Direzione attuale (inizialmente verso il basso)
 
-    private int frame = 0;
-    private int frameDelay = 100;
-    private int frameCounter = 0;
+    private int frameCorrente = 0;    // Frame corrente dell'animazione
+    private int frameDelay = 100;     // Ritardo tra i frame (più alto = animazione più lenta)
+    private int contatoreFrame = 0;   // Contatore per gestire il frameDelay
 
+    // Array 2D: 4 direzioni, 4 frame per l'animazione idle
     private Image[][] idleFrames = new Image[4][4];
+    
+    // Array 2D: 4 direzioni, 8 frame per l'animazione corsa
     private Image[][] corsaFrames = new Image[4][8];
 
-    private double x, y;
-    public double velocita = 3.5;
+    private double posizioneX, posizioneY;  // Coordinate attuali del player
+    public double velocita = 3.5;            // Velocità di movimento
 
-    private ImageView imageView;
+    private ImageView imageView;             // Nodo grafico per mostrare il player
 
+    // Booleani per tracciare quali tasti di movimento sono premuti
     private boolean muoviSu = false, muoviGiu = false, muoviSinistra = false, muoviDestra = false;
 
-    private double scala = 4;
+    private double scala = 4;  // Scala per ingrandire l'immagine del player
 
-    public Player(double x, double y) {
-        this.x = x;
-        this.y = y;
+    // Costruttore che inizializza posizione e carica le animazioni
+    public Player(double posizioneX, double posizioneY) {
+        this.posizioneX = posizioneX;
+        this.posizioneY = posizioneY;
         imageView = new ImageView();
-        caricaAnimazioni();
-        imageView.setX(x);
-        imageView.setY(y);
-        imageView.setImage(getImmagineAttuale());
-        imageView.setFitWidth(imageView.getImage().getWidth() * scala);
-        imageView.setFitHeight(imageView.getImage().getHeight() * scala);
+        caricaAnimazioni(); // carica tutte le immagini per idle e corsa
+        imageView.setX(posizioneX);
+        imageView.setY(posizioneY);
+        imageView.setImage(getImmagineCorrente()); // imposta l'immagine iniziale (idle verso il basso)
+        imageView.setFitWidth(imageView.getImage().getWidth() * scala);   // scala immagine in larghezza
+        imageView.setFitHeight(imageView.getImage().getHeight() * scala); // scala immagine in altezza
     }
 
+    // Carica immagini per ogni animazione e direzione dal filesystem risorse
     private void caricaAnimazioni() {
-        for (int dir = 0; dir < 4; dir++) {
+        for (int direzione = 0; direzione < 4; direzione++) {
+            // Carica 4 frame per animazione idle per ogni direzione
             for (int i = 0; i < 4; i++) {
-                idleFrames[dir][i] = new Image(this.getClass().getResourceAsStream("personaggio/idle/idle_" + dir + "_" + i + ".png"));
+                idleFrames[direzione][i] = new Image(this.getClass().getResourceAsStream("personaggio/idle/idle_" + direzione + "_" + i + ".png"));
             }
+            // Carica 8 frame per animazione corsa per ogni direzione
             for (int i = 0; i < 8; i++) {
-                corsaFrames[dir][i] = new Image(this.getClass().getResourceAsStream("personaggio/corsa/corsa_" + dir + "_" + i + ".png"));
+                corsaFrames[direzione][i] = new Image(this.getClass().getResourceAsStream("personaggio/corsa/corsa_" + direzione + "_" + i + ".png"));
             }
         }
     }
 
+    // Restituisce il nodo ImageView per poter aggiungere il player alla scena
     public ImageView getNode() {
         return imageView;
     }
+    
+    // Getter per l'ImageView
     public ImageView getImageView() {
         return imageView;
     }
-    
-    public void update() {
-        double nuovaX = x;
-        double nuovaY = y;
 
-        // Movimento
+    // Aggiorna la posizione, la direzione e il frame di animazione del player ad ogni ciclo di gioco
+    public void update() {
+        double nuovaX = posizioneX;
+        double nuovaY = posizioneY;
+
+        // Controlla quale tasto movimento è premuto e aggiorna posizione/direzione
         if (muoviSu) {
-            nuovaY -= velocita;
-            direzioneCorrente = Direzione.GIU;
-            setAzione(Azione.CORSA);
+            nuovaY -= velocita;               // muovi verso l'alto
+            direzioneCorrente = Direzione.GIU;  // ATTENZIONE: sembra invertito (forse bug)
+            setAzione(Azione.CORSA);          // cambia stato in corsa
         }
         if (muoviGiu) {
-            nuovaY += velocita;
-            direzioneCorrente = Direzione.SU;
+            nuovaY += velocita;               // muovi verso il basso
+            direzioneCorrente = Direzione.SU; // ATTENZIONE: anche qui sembra invertito
             setAzione(Azione.CORSA);
         }
         if (muoviSinistra) {
-            nuovaX -= velocita;
+            nuovaX -= velocita;               // muovi verso sinistra
             direzioneCorrente = Direzione.SINISTRA;
             setAzione(Azione.CORSA);
         }
         if (muoviDestra) {
-            nuovaX += velocita;
+            nuovaX += velocita;               // muovi verso destra
             direzioneCorrente = Direzione.DESTRA;
             setAzione(Azione.CORSA);
         }
 
-        // Calcolo dimensioni effettive del personaggio
-        double playerWidth = imageView.getFitWidth();
-        double playerHeight = imageView.getFitHeight();
+        // Calcola dimensioni immagine player per limiti schermo
+        double larghezzaPlayer = imageView.getFitWidth();
+        double altezzaPlayer = imageView.getFitHeight();
 
-        // Limiti della finestra
-        double screenWidth = 1350;  // larghezza finestra
-        double screenHeight = 750; // altezza finestra
+        // Dimensioni fisse dello schermo di gioco
+        double larghezzaSchermo = 1350;
+        double altezzaSchermo = 750;
 
-        // GESTIONE COLLISIONI CON I BORDI
-        if (nuovaX < 0) {
-            nuovaX = 0;
-        }
-        if (nuovaX + playerWidth > screenWidth) {
-            nuovaX = screenWidth - playerWidth;
-        }
-        if (nuovaY < 0) {
-            nuovaY = 0;
-        }
-        if (nuovaY + playerHeight > screenHeight) {
-            nuovaY = screenHeight - playerHeight;
-        }
+        // Limita movimento per non uscire dallo schermo
+        if (nuovaX < 0) nuovaX = 0;
+        if (nuovaX + larghezzaPlayer > larghezzaSchermo) nuovaX = larghezzaSchermo - larghezzaPlayer;
+        if (nuovaY < 0) nuovaY = 0;
+        if (nuovaY + altezzaPlayer > altezzaSchermo) nuovaY = altezzaSchermo - altezzaPlayer;
 
-        // Aggiorna posizione
-        x = nuovaX;
-        y = nuovaY;
+        // Aggiorna posizione reale del player
+        posizioneX = nuovaX;
+        posizioneY = nuovaY;
 
-        // Se non si sta muovendo, torna a idle
+        // Se nessun tasto premuto, torna allo stato idle
         if (!muoviSu && !muoviGiu && !muoviSinistra && !muoviDestra) {
             setAzione(Azione.IDLE);
         }
 
-        // Animazione
-        frameCounter++;
-        if (frameCounter >= frameDelay) {
-            frameCounter = 0;
-            frame++;
-            if (frame >= getNumeroFrameAttuale()) {
-                frame = 0;
+        // Gestione animazione: aggiorna frame in base a frameDelay
+        contatoreFrame++;
+        if (contatoreFrame >= frameDelay) {
+            contatoreFrame = 0;
+            frameCorrente++;
+            // Se finito ultimo frame, torna al primo
+            if (frameCorrente >= getNumeroFrameCorrente()) {
+                frameCorrente = 0;
             }
         }
 
-        // Aggiorna immagine e posizione
-        imageView.setImage(getImmagineAttuale());
-        imageView.setX(x);
-        imageView.setY(y);
+        // Aggiorna immagine mostrata e posizione ImageView
+        imageView.setImage(getImmagineCorrente());
+        imageView.setX(posizioneX);
+        imageView.setY(posizioneY);
     }
 
-    private int getNumeroFrameAttuale() {
+    // Ritorna numero di frame correnti basato sull'azione (idle=4, corsa=8)
+    private int getNumeroFrameCorrente() {
         switch (azioneCorrente) {
             case CORSA: return 8;
             case IDLE:
@@ -139,20 +148,23 @@ public class Player {
         }
     }
 
-    public void setAzione(Azione azione) {
-        azioneCorrente = azione;
-        frame = 0;
+    // Imposta l'azione corrente e resetta il frame animazione
+    public void setAzione(Azione nuovaAzione) {
+        azioneCorrente = nuovaAzione;
+        frameCorrente = 0;
     }
 
-    private Image getImmagineAttuale() {
-        int dir = direzioneCorrente.ordinal();
+    // Ritorna l'immagine corrente in base a direzione e azione
+    private Image getImmagineCorrente() {
+        int indiceDirezione = direzioneCorrente.ordinal();
         switch (azioneCorrente) {
-            case CORSA: return corsaFrames[dir][frame];
+            case CORSA: return corsaFrames[indiceDirezione][frameCorrente];
             case IDLE:
-            default: return idleFrames[dir][frame];
+            default: return idleFrames[indiceDirezione][frameCorrente];
         }
     }
 
+    // Gestione pressione tasti: abilita i movimenti corrispondenti
     public void handleKeyPress(KeyEvent event) {
         switch (event.getCode()) {
             case W: muoviSu = true; break;
@@ -163,6 +175,7 @@ public class Player {
         }
     }
 
+    // Gestione rilascio tasti: disabilita i movimenti corrispondenti
     public void handleKeyRelease(KeyEvent event) {
         switch (event.getCode()) {
             case W: muoviSu = false; break;
@@ -173,17 +186,19 @@ public class Player {
         }
     }
 
-    // Metodi aggiunti per supportare movimento da PrimoLivello
+    // Getter per la posizione X attuale
     public double getX() {
-        return x;
+        return posizioneX;
     }
 
+    // Getter per la posizione Y attuale
     public double getY() {
-        return y;
+        return posizioneY;
     }
 
-    public void move(double moveX, double moveY) {
-        x += moveX;
-        y += moveY;
+    // Metodo per spostare il player aggiungendo delta alle coordinate
+    public void move(double deltaX, double deltaY) {
+        posizioneX += deltaX;
+        posizioneY += deltaY;
     }
 }
